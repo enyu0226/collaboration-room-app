@@ -1,6 +1,6 @@
 # Welcome to Collab Room
 
-An elegant, beautiful and sophisticated project task manager app that is implemented using React, Redux and Firebase. Collabb room is a place where people come to hang out and post their project(s) and request(s) for other people to see, so they can make comments or provide suggestions on them. Users can also like/unlike and comment on the their or others' projects.
+An elegant, beautiful and sophisticated project task manager app that is implemented using React, Redux and Firebase. Collab room is a place where people come to hang out and post their project(s) and request(s) for other people to see, so they can make comments or provide suggestions on them. Users can also like/unlike and comment on the their or others' projects.
 
 ## Core features:
 
@@ -17,12 +17,16 @@ An elegant, beautiful and sophisticated project task manager app that is impleme
 11. [x] User can comment on the posts. Any user who created the comment may delete their own post.
 12. [x] Edit and delete post or comment would prompt user for additional confirmation.
 13. [x] User can include an optional project photo when creating project.
+14. [x] Allow user to search project by project tag, title, content and location of the project.
+15. [x] Improve overall UI image loading speed by saving image to local storage upon initial image request and thus prevent duplicate API call to the backend.
+16. [x] User can favorite the post by clicking on the star icon and turn on favorite filter on the search result so that it only return favorited projects.
+17. [x] Added multi-step project creation to create smooth UI form and incorporate loading flag while project is been submitted to the backend to prevent multiple project submission attempt.
+18. [x] Added form validation to project creation step such that missing required field would produce error message and prevent going to the next step.
+19. [x] The UI display intelligently adapts to any lack of optional field value.
 
 ## Future release:
 
 1. [] User can schedule chat with other users.
-2. [] Further Improve UI laypout and allow more input field during project creation, such as time slots, project type, tag, etc.
-3. [] Allow user to search project by project tag, tag and name of the project.
 
 ## Live Example
 
