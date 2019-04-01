@@ -6,6 +6,7 @@ import {
   deleteProject
 } from "./actionCreators/postCRUD";
 
+import { favoritePost, disFavorPost } from "./actionCreators/postFavorite";
 import { likePost, dislikePost } from "./actionCreators/postLikes";
 import { addComment, deleteComment } from "./actionCreators/postComments";
 
@@ -20,5 +21,7 @@ export {
   likePost,
   dislikePost,
   addComment,
-  deleteComment
+  deleteComment,
+  favoritePost,
+  disFavorPost
 };

@@ -1,0 +1,40 @@
+.confirm body {
+  letter-spacing: 0.04em;
+}
+
+.confirm .container {
+  margin-top: 30px;
+  max-width: 500px;
+}
+
+.confirm .waves-effect {
+  width: 100%;
+}
+
+.confirm .subheader {
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  margin: 0.75rem 16px;
+}
+
+.confirm .list {
+  margin: 0;
+}
+
+.confirm .list li {
+  padding: 0 16px;
+}
+
+.confirm .list li .valign-wrapper {
+  min-height: 72px;
+}
+
+.confirm .list i.circle {
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.26);
+}
+
+.confirm .list .title span {
+  color: rgba(0, 0, 0, 0.54);
+}

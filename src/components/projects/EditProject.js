@@ -35,9 +35,9 @@ class EditProject extends Component {
     e.preventDefault();
   };
 
-  handleEdit = () => {
+  handleEdit = async () => {
     const projectId = this.props.match.params.id;
-    this.props.editProject(this.state, projectId);
+    await this.props.editProject(this.state, projectId);
     this.props.history.push("/");
     window.location.reload();
   };
@@ -62,7 +62,7 @@ class EditProject extends Component {
           confirmText="Confirm Edit"
         />
 
-        <form className="white" onSubmit={this.handleSubmit}>
+        <form className="white z-depth-3" onSubmit={this.handleSubmit}>
           <h5 className="grey-text text-darken-3">Edit Exisitng Project</h5>
           <div className="input-field">
             <input
@@ -83,11 +83,14 @@ class EditProject extends Component {
             <label htmlFor="content" />
           </div>
           <div className="input-field">
-            <button className="btn purple lighten-1" onClick={this.openModal}>
+            <button
+              className="btn chip purple lighten-1"
+              onClick={this.openModal}
+            >
               Edit
             </button>
             <button
-              className="btn purple lighten-1"
+              className="btn chip purple lighten-1"
               onClick={this.handleClick}
               style={{ marginLeft: 20 }}
             >

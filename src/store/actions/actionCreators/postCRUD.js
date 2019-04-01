@@ -26,7 +26,9 @@ export const createProject = project => {
         comments: [],
         commentsCount: 0,
         comment: "",
-        likedPostIds: []
+        likedPostIds: [],
+        favoritePostIds: [],
+        [authorId]: { favorited: false, liked: false }
       })
       .then(() => {
         dispatch({ type: CREATE_PROJECT_SUCCESS });

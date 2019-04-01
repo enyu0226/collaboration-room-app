@@ -10,7 +10,6 @@ import { reduxFirestore, getFirestore } from "redux-firestore";
 import { reactReduxFirebase, getFirebase } from "react-redux-firebase";
 import fbConfig from "./config/fbConfig";
 import "./styles/normalize.css";
-//import "./styles/skeleton.css";
 import "./styles/index.css";
 import "font-awesome/css/font-awesome.min.css";
 

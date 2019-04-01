@@ -1,0 +1,16 @@
+.FavoriteButton__root {
+  border: none !important;
+  outline: none !important;
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+}
+
+.FavoriteButton__icon {
+  color: yellow;
+}
+
+button:focus {
+  outline: none;
+  background-color: transparent;
+}

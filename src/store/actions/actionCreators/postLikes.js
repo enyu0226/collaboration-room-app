@@ -9,24 +9,32 @@ export const likePost = projectId => {
     firestore.collection("projects").doc(projectId);
     firestore
       .runTransaction(function(transaction) {
-        return transaction.get(projectRef).then(function(project) {
+        return transaction.get(projectRef).then(async function(project) {
           var newLikesCount;
           var likedPostIds;
+          var likes;
+          var authorIdSpread;
           if (project.data()) {
             if (project.data().likes && project.data().likes[authorId]) {
-              newLikesCount = project.data().likesCount - 1;
-              likedPostIds = project.data().likedPostIds;
+              newLikesCount = (await project.data().likesCount) - 1;
+              likedPostIds = await project.data().likedPostIds;
+              likes = await project.data().likes;
+              authorIdSpread = await project.data()[authorId];
               transaction.update(projectRef, {
+                [authorId]: { ...authorIdSpread, like: false },
                 likesCount: newLikesCount,
-                likes: { [authorId]: null },
+                likes: { ...likes, [authorId]: null },
                 likedPostIds: likedPostIds.filter(id => id !== projectId)
               });
             } else {
-              newLikesCount = project.data().likesCount + 1;
-              likedPostIds = project.data().likedPostIds;
+              newLikesCount = (await project.data().likesCount) + 1;
+              likedPostIds = await project.data().likedPostIds;
+              likes = await project.data().likes;
+              authorIdSpread = await project.data()[authorId];
               transaction.update(projectRef, {
+                [authorId]: { ...authorIdSpread, like: true },
                 likesCount: newLikesCount,
-                likes: { [authorId]: true },
+                likes: { ...likes, [authorId]: true },
                 likedPostIds: [...likedPostIds, projectId]
               });
             }
@@ -56,25 +64,32 @@ export const dislikePost = projectId => {
     var projectRef = firestore.collection("projects").doc(projectId);
     firestore
       .runTransaction(function(transaction) {
-        return transaction.get(projectRef).then(function(project) {
+        return transaction.get(projectRef).then(async function(project) {
           var newLikesCount;
           var likedPostIds;
+          var likes;
+          var authorIdSpread;
           if (project.data()) {
             if (project.data().likes && project.data().likes[authorId]) {
-              newLikesCount = project.data().likesCount - 1;
-              likedPostIds = project.data().likedPostIds;
-              transaction.update(projectRef, {
+              newLikesCount = (await project.data().likesCount) - 1;
+              likedPostIds = await project.data().likedPostIds;
+              likes = await project.data().likes;
+              authorIdSpread = await project.data()[authorId];
+              await transaction.update(projectRef, {
+                [authorId]: { ...authorIdSpread, like: false },
                 likesCount: newLikesCount,
-                likes: { [authorId]: null },
+                likes: { ...likes, [authorId]: null },
                 likedPostIds: likedPostIds.filter(id => id !== projectId)
               });
             } else {
-              newLikesCount = project.data().likesCount + 1;
-              likedPostIds = project.data().likedPostIds;
-
-              transaction.update(projectRef, {
+              newLikesCount = (await project.data().likesCount) + 1;
+              likedPostIds = await project.data().likedPostIds;
+              likes = await project.data().likes;
+              authorIdSpread = await project.data()[authorId];
+              await transaction.update(projectRef, {
                 likesCount: newLikesCount,
-                likes: { [authorId]: true },
+                [authorId]: { ...authorIdSpread, like: true },
+                likes: { ...likes, [authorId]: true },
                 likedPostIds: [...likedPostIds, projectId]
               });
             }

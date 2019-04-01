@@ -1,0 +1,16 @@
+.EmojiButton__root {
+  border: none !important;
+  outline: none !important;
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+}
+
+.EmojiButton__icon--afterClick {
+  color: #ffa500;
+}
+
+button:focus {
+  outline: none;
+  background-color: transparent;
+}

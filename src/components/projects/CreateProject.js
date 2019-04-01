@@ -5,16 +5,45 @@ import { Redirect } from "react-router-dom";
 import mime from "mime-types";
 import uuidv4 from "uuid/v4";
 import firebase from "../../config/fbConfig";
+import "./CreateProject.css";
+import FormProjectDetails from "./FormProjectDetails";
+import FormTimeSlot from "./FormTimeSlot";
+import FormLocation from "./FormLocation";
+import FormTag from "./FormTag";
+import FormFileUpload from "./FormFileUpload";
+import Confirm from "./Confirm";
 
 class CreateProject extends Component {
   state = {
+    step: 1,
     storageRef: firebase.storage().ref(),
     file: null,
     authorized: ["image/jpeg", "image / gif", "image/png", "image/bmp"],
     title: "",
+    tag: "General",
+    location: "",
+    timeslot: "",
     uploadTask: null,
     content: "",
-    uploadState: ""
+    uploadState: "",
+    errors: [],
+    isprojectLoading: false
+  };
+
+  // Proceed to next step
+  nextStep = () => {
+    const { step } = this.state;
+    this.setState({
+      step: step + 1
+    });
+  };
+
+  // Go back to prev step
+  prevStep = () => {
+    const { step } = this.state;
+    this.setState({
+      step: step - 1
+    });
   };
 
   addFile = event => {
@@ -25,22 +54,27 @@ class CreateProject extends Component {
     }
   };
 
-  sendFile = () => {
+  sendFile = async () => {
     const { file } = this.state;
+    await this.setState({ isprojectLoading: true });
     if (file !== null) {
       if (this.isAuthorized(file.name)) {
         const metadata = { contentType: mime.lookup(file.name) };
         console.log("file is authorized");
-        this.uploadFile(file, metadata);
+        await this.uploadFile(file, metadata);
         this.clearFile();
       }
     } else {
-      const { title, content } = this.state;
+      const { title, content, location, timeslot, tag } = this.state;
       const project = {
         title,
-        content
+        content,
+        location,
+        timeslot,
+        tag
       };
-      this.props.createProject(project);
+      await this.props.createProject(project);
+      await this.setState({ isprojectLoading: false });
       this.props.history.push("/");
     }
   };
@@ -68,6 +102,7 @@ class CreateProject extends Component {
           err => {
             console.error(err);
             this.setState({
+              // isprojectLoading: false,
               uploadState: "error",
               uploadTask: null
             });
@@ -77,11 +112,21 @@ class CreateProject extends Component {
               .getDownloadURL()
               .then(downloadUrl => {
                 this.setState({ file: downloadUrl });
-                const { file, title, content } = this.state;
+                const {
+                  file,
+                  title,
+                  content,
+                  tag,
+                  location,
+                  timeslot
+                } = this.state;
                 const project = {
                   file,
                   title,
-                  content
+                  content,
+                  tag,
+                  location,
+                  timeslot
                 };
                 this.props.createProject(project);
                 console.log("downloadurl");
@@ -93,6 +138,7 @@ class CreateProject extends Component {
               .catch(err => {
                 console.error(err);
                 this.setState({
+                  // isprojectLoading: false,
                   uploadState: "error",
                   uploadTask: null
                 });
@@ -109,52 +155,135 @@ class CreateProject extends Component {
     });
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
-    this.sendFile();
+  handleTimeChange = time => {
+    this.setState({
+      timeslot: time
+    });
   };
 
+  handleSubmit = e => {
+    e.preventDefault();
+    if (this.isFormValid()) {
+      this.sendFile();
+    }
+  };
+
+  isFormValid = () => {
+    let errors = [];
+    let error;
+    if (this.isRequiredFormFieldAllEmpty(this.state)) {
+      error = { message: "Please fill in title and content" };
+      this.setState({ errors: errors.concat(error) });
+      document.getElementById("title").classList.add("invalid");
+      document.getElementById("content").classList.add("invalid");
+
+      return false;
+    } else if (this.isFormTitleEmpty(this.state)) {
+      document.getElementById("title").classList.add("invalid");
+      error = { message: "Please fill in title" };
+      this.setState({ errors: errors.concat(error) });
+      return false;
+    } else if (this.isFormContentEmpty(this.state)) {
+      document.getElementById("content").classList.add("invalid");
+      error = { message: "Please fill in content" };
+      this.setState({ errors: errors.concat(error) });
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  isRequiredFormFieldAllEmpty = ({ content, title }) => {
+    return !title.length && !content.length;
+  };
+
+  isFormTitleEmpty = ({ title }) => {
+    return !title.length;
+  };
+
+  isFormContentEmpty = ({ content }) => {
+    return !content.length;
+  };
+
+  displayErrors = errors =>
+    errors.map((error, i) => <p key={i}>{error.message}</p>);
+
+  componentDidUpdate(prevProps, prevState) {
+    //add whatever comparison logic you need here
+    if (this.state.content !== prevState.content) {
+      document.getElementById("content").classList.remove("invalid");
+    }
+    if (this.state.title !== prevState.title) {
+      document.getElementById("title").classList.remove("invalid");
+    }
+  }
+
   render() {
-    console.log(this.state.file);
+    const { title, tag, location, timeslot, content, file } = this.state;
+    const values = { title, tag, location, timeslot, content, file };
+    const { errors, step, isprojectLoading } = this.state;
     const { auth } = this.props;
     if (!auth.uid) return <Redirect to="/signin" />;
-    return (
-      <div className="container">
-        <form className="white" onSubmit={this.handleSubmit}>
-          <h5 className="grey-text text-darken-3">Create a New Project</h5>
-          <div className="input-field">
-            <input type="text" id="title" onChange={this.handleChange} />
-            <label htmlFor="title">Project Title</label>
-          </div>
-          <div className="input-field">
-            <textarea
-              id="content"
-              className="materialize-textarea"
-              onChange={this.handleChange}
-            />
-            <label htmlFor="content">Project Content</label>
-          </div>
-          <div class="file-field input-field">
-            <div class="right btn-small purple" style={{ marginLeft: 20 }}>
-              <span>Upload</span>
-              <input type="file" onChange={this.addFile} />
-            </div>
 
-            <div class="file-path-wrapper">
-              <input
-                class="file-path validate"
-                type="text"
-                placeholder="Upload Project Image (Optional)"
-              />
-            </div>
-          </div>
-
-          <div className="input-field">
-            <button className="btn pink lighten-1">Create</button>
-          </div>
-        </form>
-      </div>
-    );
+    switch (step) {
+      case 1:
+        return (
+          <FormProjectDetails
+            nextStep={this.nextStep}
+            handleChange={this.handleChange}
+            values={values}
+            errors={errors}
+            displayErrors={this.displayErrors}
+            isFormValid={this.isFormValid}
+          />
+        );
+      case 2:
+        return (
+          <FormTimeSlot
+            nextStep={this.nextStep}
+            prevStep={this.prevStep}
+            handleChange={this.handleTimeChange}
+            values={values}
+          />
+        );
+      case 3:
+        return (
+          <FormLocation
+            nextStep={this.nextStep}
+            prevStep={this.prevStep}
+            handleChange={this.handleChange}
+            values={values}
+          />
+        );
+      case 4:
+        return (
+          <FormTag
+            nextStep={this.nextStep}
+            prevStep={this.prevStep}
+            handleChange={this.handleChange}
+            values={values}
+          />
+        );
+      case 5:
+        return (
+          <FormFileUpload
+            nextStep={this.nextStep}
+            prevStep={this.prevStep}
+            handleChange={this.addFile}
+            values={values}
+          />
+        );
+      case 6:
+        return (
+          <Confirm
+            nextStep={this.nextStep}
+            prevStep={this.prevStep}
+            onSubmit={this.handleSubmit}
+            values={values}
+            isUploadingProject={isprojectLoading}
+          />
+        );
+    }
   }
 }
 

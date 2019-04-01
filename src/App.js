@@ -7,6 +7,7 @@ import EditProject from "./components/projects/EditProject";
 import SignIn from "./components/auth/SignIn";
 import SignUp from "./components/auth/SignUp";
 import CreateProject from "./components/projects/CreateProject";
+// import UserForm from "./components/projects/UserForm";
 
 class App extends Component {
   render() {
@@ -21,6 +22,7 @@ class App extends Component {
             <Route path="/signin" component={SignIn} />
             <Route path="/signup" component={SignUp} />
             <Route path="/create" component={CreateProject} />
+            {/* <Route path="/create" component={UserForm} /> */}
           </Switch>
         </div>
       </BrowserRouter>

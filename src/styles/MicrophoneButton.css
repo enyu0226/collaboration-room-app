@@ -1,0 +1,16 @@
+.MicrophoneButton__root {
+  border: none !important;
+  outline: none !important;
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+}
+
+.MicrophoneButton__icon--afterClick {
+  color: red;
+}
+
+button:focus {
+  outline: none;
+  background-color: transparent;
+}

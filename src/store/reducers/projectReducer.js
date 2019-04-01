@@ -2,7 +2,9 @@ const initState = {
   likedPostIds: [],
   totalPostLike: "",
   commentsCount: 0,
-  comments: []
+  comments: [],
+  favoritedPostIds: [],
+  userFavoritedPostId: false
 };
 
 const projectReducer = (state = initState, action) => {
@@ -40,6 +42,24 @@ const projectReducer = (state = initState, action) => {
         totalPostLike: action.payload.newLikesCount
       };
 
+    case "Favorite_Post":
+      console.log("favorite post success in reducer");
+      console.log(action.payload.userFavoritedPostId);
+      return {
+        ...state,
+        userFavoritedPostId: action.payload.userFavoritedPostId,
+        favoritedPostIds: [...state.favoritedPostIds, action.payload.projectId]
+      };
+    case "Disfavor_Post":
+      console.log("disfavorite post success in reducer");
+      return {
+        ...state,
+        userFavoritedPostId: action.payload.userFavoritedPostId,
+        favoritedPostIds: state.favoritedPostIds.filter(
+          id => id !== action.payload.projectId
+        )
+      };
+
     case "ADD_COMMENT":
       return {
         ...state,
@@ -60,7 +80,3 @@ const projectReducer = (state = initState, action) => {
 };
 
 export default projectReducer;
-
-export const getLikedPostIds = state => {
-  return state.likedPostIds;
-};
