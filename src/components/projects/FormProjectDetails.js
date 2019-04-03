@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-
+import PropTypes from "prop-types";
 export class FormProjectDetails extends Component {
   continue = e => {
     e.preventDefault();
@@ -67,5 +67,13 @@ export class FormProjectDetails extends Component {
     );
   }
 }
+
+FormProjectDetails.propTypes = {
+  nextStep: PropTypes.func.isRequired,
+  values: PropTypes.object.isRequired,
+  handleChange: PropTypes.func.isRequired,
+  errors: PropTypes.array.isRequired,
+  displayErrors: PropTypes.func.isRequired
+};
 
 export default FormProjectDetails;

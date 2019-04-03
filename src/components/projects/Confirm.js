@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "../../styles/Confirm.css";
+import PropTypes from "prop-types";
 export class Confirm extends Component {
   continue = e => {
     e.preventDefault();
@@ -19,6 +20,8 @@ export class Confirm extends Component {
       values: { title, tag, location, timeslot, content, file },
       isUploadingProject
     } = this.props;
+
+    file;
     return (
       <div class="confirm">
         <div class="container">
@@ -107,6 +110,7 @@ export class Confirm extends Component {
             <div className="chip-btn">
               <button
                 className="btn chip blue darken-2 center-align"
+                disabled={isUploadingProject}
                 onClick={this.back}
               >
                 >
@@ -128,5 +132,10 @@ export class Confirm extends Component {
     );
   }
 }
+
+Confirm.propTypes = {
+  values: PropTypes.object.isRequired,
+  isUploadingProject: PropTypes.bool.isRequired
+};
 
 export default Confirm;

@@ -8,7 +8,6 @@ import { CommentBox } from "./CommentBox";
 import { CommentItem } from "./CommentItem";
 import { getFirestore } from "redux-firestore";
 import ConfirmationModal from "./ConfirmationModal";
-import { StateProvider } from "reenhance-components/dist";
 import firebase from "../../config/fbConfig";
 import {
   deleteProject,
@@ -19,10 +18,12 @@ import {
   favoritePost,
   disFavorPost
 } from "../../store/actions";
+import PropTypes from "prop-types";
 import LikeButton from "./LikeButton";
 import "../../styles/ProjectDetails.css";
 import _ from "lodash";
 import FavoriteButton from "./FavoriteButton";
+import LikersModal from "./LikersModal";
 
 export class ProjectDetails extends Component {
   constructor(props) {
@@ -39,7 +40,11 @@ export class ProjectDetails extends Component {
       userFavoritedPostId: false,
       isFavoriteButtonDisabled: false,
       userLikedPostId: false,
-      imageHits: null
+      imageHits: null,
+      IsFetchingLikers: false,
+      likersName: [],
+      likersModalIsOpen: false,
+      likersModalPostId: null
     };
 
     this.closeModal = () => this.setState({ modalIsOpen: false });
@@ -61,11 +66,15 @@ export class ProjectDetails extends Component {
           const favoritedPostIds = project.favoritePostIds;
           let userFavoritedPostId;
           let userLikedPostId;
-          console.log(project.hasOwnProperty(currentUser));
+          // console.log(project.hasOwnProperty(currentUser));
           if (project.hasOwnProperty(currentUser)) {
-            userFavoritedPostId = project[currentUser].favorite;
-            console.log(project[currentUser].favorite);
+            if (project[currentUser].hasOwnProperty("favorite")) {
+              userFavoritedPostId = project[currentUser].favorite;
+            } else {
+              userFavoritedPostId = false;
+            }
             userLikedPostId = project[currentUser].like;
+            // console.log(project[currentUser].favorite);
           } else {
             userFavoritedPostId = false;
             userLikedPostId = false;
@@ -89,7 +98,7 @@ export class ProjectDetails extends Component {
     }
   }
 
-  renderLikes() {
+  renderLikes(projectId) {
     const { likesCount } = this.state;
     if (likesCount > 0) {
       return (
@@ -111,7 +120,6 @@ export class ProjectDetails extends Component {
         },
         this.props.disFavorPost(projectId)
       );
-      // this.props.onDisfavor();
       setTimeout(
         () => this.setState({ isFavoriteButtonDisabled: false }),
         2000
@@ -138,9 +146,10 @@ export class ProjectDetails extends Component {
       );
     }
   }
-  componentWillMount() {
+  componentWillUnmount() {
     if (this.unsubscribe) this.unsubscribe();
   }
+
   handleEdit = () => {
     const id = this.props.match.params.id;
     const editUrl = `/edit/project/${id}`;
@@ -148,14 +157,26 @@ export class ProjectDetails extends Component {
   };
 
   handleDelete = async () => {
+    let component = this;
     const projectId = this.props.match.params.id;
-    await this.props.deleteProject(projectId);
-    this.props.history.push("/");
-    window.location.reload();
+    await this.props.deleteProject(projectId, component);
+  };
+
+  openLikersModal = postId => {
+    this.setState({
+      likersModalIsOpen: true,
+      likersModalPostId: postId
+    });
+  };
+
+  closeLikersModal = () => {
+    this.setState({
+      likersModalIsOpen: false,
+      likersModalPostId: null
+    });
   };
 
   cacheHitImage = (project, projectId) => {
-    // let project_file = await project.file;
     if (project.file) {
       const cacheHits = window.localStorage.getItem(
         `${projectId}-img`,
@@ -195,72 +216,10 @@ export class ProjectDetails extends Component {
   }
 
   render() {
-    let projectFile;
     const { project, auth } = this.props;
     const projectId = this.props.match.params.id;
-    //console.log(this.state.likedPostIds);
-    console.log(this.state.userFavoritedPostId);
-    console.log(this.state.userLikedPostId);
-
+    console.log(project);
     if (!auth.uid) return <Redirect to="/signin" />;
-
-    const LoadedState = StateProvider(false);
-
-    const ImageWithLoading = ({ src, style }) => (
-      <LoadedState>
-        {({ state: loaded, setState: setLoaded }) => (
-          <div>
-            {!loaded ? (
-              <div style={{ textAlign: "center" }}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  version="1.0"
-                  width="64px"
-                  height="64px"
-                  viewBox="0 0 128 128"
-                >
-                  <rect x="0" y="0" width="100%" height="100%" fill="#FFFFFF" />
-                  <g>
-                    <linearGradient id="linear-gradient">
-                      <stop offset="0%" stop-color="#000" />
-                      <stop offset="100%" stop-color="#0090fe" />
-                    </linearGradient>
-                    <linearGradient id="linear-gradient2">
-                      <stop offset="0%" stop-color="#000" />
-                      <stop offset="100%" stop-color="#90e6fe" />
-                    </linearGradient>
-                    <path
-                      d="M64 .98A63.02 63.02 0 1 1 .98 64 63.02 63.02 0 0 1 64 .98zm0 15.76A47.26 47.26 0 1 1 16.74 64 47.26 47.26 0 0 1 64 16.74z"
-                      fill-rule="evenodd"
-                      fill="url(#linear-gradient)"
-                    />
-                    <path
-                      d="M64.12 125.54A61.54 61.54 0 1 1 125.66 64a61.54 61.54 0 0 1-61.54 61.54zm0-121.1A59.57 59.57 0 1 0 123.7 64 59.57 59.57 0 0 0 64.1 4.43zM64 115.56a51.7 51.7 0 1 1 51.7-51.7 51.7 51.7 0 0 1-51.7 51.7zM64 14.4a49.48 49.48 0 1 0 49.48 49.48A49.48 49.48 0 0 0 64 14.4z"
-                      fill-rule="evenodd"
-                      fill="url(#linear-gradient2)"
-                    />
-                    <animateTransform
-                      attributeName="transform"
-                      type="rotate"
-                      from="0 64 64"
-                      to="360 64 64"
-                      dur="1800ms"
-                      repeatCount="indefinite"
-                    />
-                  </g>
-                </svg>
-              </div>
-            ) : null}
-
-            <img
-              src={src}
-              style={!loaded ? { visibility: "hidden" } : style}
-              onLoad={() => setLoaded(true)}
-            />
-          </div>
-        )}
-      </LoadedState>
-    );
 
     const timeslot = _.has(project, "timeslot") ? (
       project.timeslot ? (
@@ -286,11 +245,7 @@ export class ProjectDetails extends Component {
     ) : (
       ""
     );
-    console.log(project);
-    console.log(this.state.favoritedPostIds);
-    // console.log(this.props.favoritedPostIds);
-    console.log(this.state.userFavoritedPostId);
-    console.log(window);
+
     if (project) {
       const isSameProjectAuthenticatedUser = project.authorId !== auth.uid;
       return (
@@ -322,36 +277,26 @@ export class ProjectDetails extends Component {
                     confirmText="Delete Project"
                   />
 
-                  {project.file ? (
-                    // (localstorage.getItem(`${projectId}-img`, project.file))?
-                    //     {
-                    //       projectFile = localstorage.getItem(`${projectId}-img`, project.file)
-                    //     }
-
-                    //     : localstorage.setItem(`${projectId}-img`, project.file)
-
-                    <div>
-                      <img
-                        style={{ width: "100%" }}
-                        src={
-                          this.cacheHitImage(project, projectId) || project.file
-                        }
-                        role="presentation"
-                      />
-                    </div>
+                  {project.isPhotoIncluded ? (
+                    project.file ? (
+                      localStorage.getItem(`${projectId}-img`, project.file) ? (
+                        <div>
+                          <img
+                            style={{ width: "100%" }}
+                            src={
+                              this.cacheHitImage(project, projectId) ||
+                              project.file
+                            }
+                            role="presentation"
+                          />
+                        </div>
+                      ) : (
+                        ""
+                      )
+                    ) : (
+                      ""
+                    )
                   ) : (
-                    // <ImageWithLoading
-                    //   style={{ width: "100%" }}
-                    //   src={
-                    //     this.cacheHitImage(project, projectId) || project.file
-                    //   }
-                    //   role="presentation"
-                    // />
-                    // <ImageWithLoading
-                    //   style={{ width: "100%" }}
-                    //   src={project.file}
-                    //   role="presentation"
-                    // />
                     ""
                   )}
                   <br />
@@ -382,8 +327,6 @@ export class ProjectDetails extends Component {
                   <span>
                     {moment(project.createdAt.toDate()).calendar()}
                     <span className="right">
-                      {/* userFavoritedPostId */}
-                      {/* favoritedPostIds */}
                       {this.state.userFavoritedPostId !== undefined ? (
                         <FavoriteButton
                           onFavor={() => this.props.favoritePost(projectId)}
@@ -391,9 +334,6 @@ export class ProjectDetails extends Component {
                           handleFavoriteClick={e =>
                             this.handleFavoriteClick(e, projectId)
                           }
-                          // favorited={
-                          //   this.state.favoritedPostIds.indexOf(projectId) >= 0
-                          // }
                           favorited={this.state.userFavoritedPostId}
                           isFavoriteButtonDisabled={
                             this.state.isFavoriteButtonDisabled
@@ -406,7 +346,7 @@ export class ProjectDetails extends Component {
                   </span>
                 </div>
                 <div className="card-action">
-                  {this.renderLikes()}
+                  {this.renderLikes(projectId)}
                   {this.renderComments()}
                   <div className="ProjectDetails__action-box">
                     <div className="ProjectDetails__like-button">
@@ -414,9 +354,6 @@ export class ProjectDetails extends Component {
                         <LikeButton
                           onLike={() => this.props.likePost(projectId)}
                           onDislike={() => this.props.dislikePost(projectId)}
-                          // liked={
-                          //   this.state.likedPostIds.indexOf(projectId) >= 0
-                          // }
                           liked={this.state.userLikedPostId}
                         />
                       ) : (
@@ -430,6 +367,18 @@ export class ProjectDetails extends Component {
                         />
                       </div>
                     </div>
+                    {this.state.likersName ? (
+                      <LikersModal
+                        isOpen={
+                          this.state.likersName && this.state.likersModalIsOpen
+                        }
+                        onRequestClose={this.closeLikersModal}
+                        postId={this.state.likersModalPostId}
+                        likers={this.state.likersName}
+                      />
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </div>
               </div>
@@ -449,7 +398,8 @@ export class ProjectDetails extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    deleteProject: projectId => dispatch(deleteProject(projectId)),
+    deleteProject: (projectId, component) =>
+      dispatch(deleteProject(projectId, component)),
     likePost: projectId => dispatch(likePost(projectId)),
     dislikePost: projectId => dispatch(dislikePost(projectId)),
 
@@ -462,6 +412,7 @@ const mapDispatchToProps = dispatch => {
       dispatch(deleteComment(projectId, comment_id))
   };
 };
+
 const mapStateToProps = (state, ownProps) => {
   const id = ownProps.match.params.id;
   const projects = state.firestore.data.projects;
@@ -474,6 +425,15 @@ const mapStateToProps = (state, ownProps) => {
     favoritedPostIds: state.project.favoritedPostIds,
     userFavoritedPostId: state.project.userFavoritedPostId
   };
+};
+
+ProjectDetails.propTypes = {
+  project: PropTypes.object.isRequired,
+  auth: PropTypes.object.isRequired,
+  likesCount: PropTypes.number.isRequired,
+  likedPostIds: PropTypes.array.isRequired,
+  avoritedPostIds: PropTypes.array.isRequired,
+  userFavoritedPostId: PropTypes.bool.isRequired
 };
 
 export default compose(

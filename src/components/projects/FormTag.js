@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 export class FormTag extends Component {
   continue = e => {
@@ -75,5 +76,12 @@ export class FormTag extends Component {
     );
   }
 }
+
+FormTag.propTypes = {
+  prevStep: PropTypes.func.isRequired,
+  nextStep: PropTypes.func.isRequired,
+  values: PropTypes.object.isRequired,
+  handleChange: PropTypes.func.isRequired
+};
 
 export default FormTag;

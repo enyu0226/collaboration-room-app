@@ -5,6 +5,7 @@ import { Redirect } from "react-router-dom";
 import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 import ConfirmationModal from "./ConfirmationModal";
+import PropTypes from "prop-types";
 
 class EditProject extends Component {
   constructor(props) {
@@ -36,10 +37,11 @@ class EditProject extends Component {
   };
 
   handleEdit = async () => {
+    let component = this;
     const projectId = this.props.match.params.id;
-    await this.props.editProject(this.state, projectId);
-    this.props.history.push("/");
-    window.location.reload();
+    await this.props.editProject(this.state, projectId, component);
+    // this.props.history.push("/");
+    // window.location.reload();
   };
 
   componentDidMount() {
@@ -106,8 +108,10 @@ class EditProject extends Component {
 const mapDispatchToProps = dispatch => {
   return {
     getProject: (projectId, obj) => dispatch(getProject(projectId, obj)),
-    editProject: (project, projectId) =>
-      dispatch(editProject(project, projectId))
+    // editProject: (project, projectId) =>
+    //   dispatch(editProject(project, projectId))
+    editProject: (project, projectId, component) =>
+      dispatch(editProject(project, projectId, component))
   };
 };
 
@@ -119,6 +123,12 @@ const mapStateToProps = (state, ownProps) => {
     project: project,
     auth: state.firebase.auth
   };
+};
+
+EditProject.propTypes = {
+  project: PropTypes.object.isRequired,
+  auth: PropTypes.object.isRequired,
+  editProject: PropTypes.func.isRequired
 };
 
 export default compose(

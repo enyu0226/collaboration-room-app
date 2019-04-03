@@ -4,113 +4,18 @@ import "emoji-mart/css/emoji-mart.css";
 import "../../styles/EmojiButton.css";
 import "../../styles/MicrophoneButton.css";
 
-// //-----------------SPEECH RECOGNITION SETUP---------------------
-
-// var recognition = new (window.SpeechRecognition ||
-//   window.webkitSpeechRecognition ||
-//   window.mozSpeechRecognition ||
-//   window.msSpeechRecognition)();
-// recognition.continous = true;
-// recognition.lang = "en-US";
-// recognition.interimResults = true;
-// //------------------------COMPONENT-----------------------------
-
 export class CommentBox extends Component {
   constructor(props) {
     super(props);
     this.state = {
       commentBody: "",
       emojiPicker: false
-      // listening: false
     };
-
-    // this.toggleListen = this.toggleListen.bind(this);
-    // this.handleListen = this.handleListen.bind(this);
 
     this.onCommentChange = event =>
       this.setState({ commentBody: event.target.value });
     this.handleKeyDown = this._handleKeyDown.bind(this);
   }
-
-  // toggleListen() {
-  //   this.setState(
-  //     {
-  //       listening: !this.state.listening
-  //     },
-  //     this.handleListen
-  //   );
-
-  //   setTimeout(() => {
-  //     this.setState(
-  //       {
-  //         listening: false
-  //       },
-  //       () => {
-  //         recognition.stop();
-  //         recognition.onend = () => {
-  //           console.log("Stopped listening per click");
-  //         };
-  //       }
-  //     );
-  //   }, 5000);
-  // }
-
-  // handleListen() {
-  //   console.log("listening?", this.state.listening);
-
-  //   if (this.state.listening) {
-  //     recognition.start();
-  //     recognition.onend = () => {
-  //       console.log("...continue listening...");
-  //       recognition.start();
-  //     };
-  //   } else {
-  //     recognition.stop();
-  //     recognition.onend = () => {
-  //       console.log("Stopped listening per click");
-  //     };
-  //   }
-
-  //   recognition.onstart = () => {
-  //     console.log("Listening!");
-  //   };
-
-  //   let finalTranscript = "";
-  //   recognition.onresult = event => {
-  //     let interimTranscript = "";
-
-  //     for (let i = event.resultIndex; i < event.results.length; i++) {
-  //       const transcript = event.results[i][0].transcript;
-  //       if (event.results[i].isFinal) finalTranscript += transcript + " ";
-  //       else interimTranscript += transcript;
-  //     }
-  //     if (document.getElementById("interim")) {
-  //       document.getElementById("interim").innerHTML = interimTranscript;
-  //     }
-  //     this.setState({ commentBody: finalTranscript });
-
-  //     //-------------------------COMMANDS------------------------------------
-
-  //     const transcriptArr = finalTranscript.split(" ");
-  //     const stopCmd = transcriptArr.slice(-3, -1);
-  //     console.log("stopCmd", stopCmd);
-
-  //     if (stopCmd[0] === "stop" && stopCmd[1] === "listening") {
-  //       recognition.stop();
-  //       recognition.onend = () => {
-  //         console.log("Stopped listening per command");
-  //         const finalText = transcriptArr.slice(0, -3).join(" ");
-  //         this.setState({ commentBody: finalText });
-  //       };
-  //     }
-  //   };
-
-  //   //-----------------------------------------------------------------------
-
-  //   recognition.onerror = event => {
-  //     console.log("Error occurred in recognition: " + event.error);
-  //   };
-  // }
 
   _handleKeyDown(event) {
     if (event.which === 13 && this.state.commentBody.trim().length > 0) {
@@ -152,20 +57,6 @@ export class CommentBox extends Component {
     });
   };
 
-  componentWillUnmount() {
-    // this.setState(
-    //   {
-    //     listening: false
-    //   },
-    //   () => {
-    //     recognition.stop();
-    //     recognition.onend = () => {
-    //       console.log("Stopped listening per click");
-    //     };
-    //   }
-    // );
-  }
-
   render() {
     const { emojiPicker, listening } = this.state;
     return (
@@ -194,16 +85,6 @@ export class CommentBox extends Component {
                 <i class="fa fa-smile-o fa-2x " />
               )}
             </button>{" "}
-            {/* <button
-              className="MicrophoneButton__root"
-              onClick={this.toggleListen}
-            >
-              {listening ? (
-                <i class="fa fa-microphone MicrophoneButton__icon--afterClick fa-2x" />
-              ) : (
-                <i class="fa fa-microphone fa-2x" />
-              )}
-            </button> */}
           </span>
         </div>
         {emojiPicker && (
@@ -216,13 +97,6 @@ export class CommentBox extends Component {
             emoji="point_up"
           />
         )}
-
-        <div>
-          {listening
-            ? "Make sure to turn off microphone before you leave!"
-            : ""}
-          <div id="interim" />
-        </div>
       </div>
     );
   }

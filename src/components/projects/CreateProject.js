@@ -12,6 +12,7 @@ import FormLocation from "./FormLocation";
 import FormTag from "./FormTag";
 import FormFileUpload from "./FormFileUpload";
 import Confirm from "./Confirm";
+import PropTypes from "prop-types";
 
 class CreateProject extends Component {
   state = {
@@ -27,7 +28,8 @@ class CreateProject extends Component {
     content: "",
     uploadState: "",
     errors: [],
-    isprojectLoading: false
+    isprojectLoading: false,
+    isPhotoIncluded: null
   };
 
   // Proceed to next step
@@ -62,20 +64,31 @@ class CreateProject extends Component {
         const metadata = { contentType: mime.lookup(file.name) };
         console.log("file is authorized");
         await this.uploadFile(file, metadata);
-        this.clearFile();
+        // this.clearFile();
       }
     } else {
-      const { title, content, location, timeslot, tag } = this.state;
+      await this.setState({ isPhotoIncluded: false });
+      const {
+        title,
+        content,
+        location,
+        timeslot,
+        tag,
+        isPhotoIncluded
+      } = this.state;
+
       const project = {
         title,
         content,
         location,
         timeslot,
-        tag
+        tag,
+        isPhotoIncluded
       };
       await this.props.createProject(project);
       await this.setState({ isprojectLoading: false });
       this.props.history.push("/");
+      this.clearFile();
     }
   };
 
@@ -111,14 +124,15 @@ class CreateProject extends Component {
             this.state.uploadTask.snapshot.ref
               .getDownloadURL()
               .then(downloadUrl => {
-                this.setState({ file: downloadUrl });
+                this.setState({ file: downloadUrl, isPhotoIncluded: true });
                 const {
                   file,
                   title,
                   content,
                   tag,
                   location,
-                  timeslot
+                  timeslot,
+                  isPhotoIncluded
                 } = this.state;
                 const project = {
                   file,
@@ -126,7 +140,8 @@ class CreateProject extends Component {
                   content,
                   tag,
                   location,
-                  timeslot
+                  timeslot,
+                  isPhotoIncluded
                 };
                 this.props.createProject(project);
                 console.log("downloadurl");
@@ -221,7 +236,7 @@ class CreateProject extends Component {
   render() {
     const { title, tag, location, timeslot, content, file } = this.state;
     const values = { title, tag, location, timeslot, content, file };
-    const { errors, step, isprojectLoading } = this.state;
+    const { errors, step, isprojectLoading, isPhotoIncluded } = this.state;
     const { auth } = this.props;
     if (!auth.uid) return <Redirect to="/signin" />;
 
@@ -281,6 +296,7 @@ class CreateProject extends Component {
             onSubmit={this.handleSubmit}
             values={values}
             isUploadingProject={isprojectLoading}
+            isPhotoIncluded={isPhotoIncluded}
           />
         );
     }
@@ -297,6 +313,10 @@ const mapDispatchToProps = dispatch => {
   return {
     createProject: project => dispatch(createProject(project))
   };
+};
+CreateProject.propTypes = {
+  project: PropTypes.object.isRequired,
+  createProject: PropTypes.func.isRequired
 };
 
 export default connect(

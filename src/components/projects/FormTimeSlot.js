@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "flatpickr/dist/themes/dark.css";
 import Flatpickr from "flatpickr";
 import moment from "moment";
+import PropTypes from "prop-types";
 
 export class FormTimeSlot extends Component {
   continue = e => {
@@ -92,5 +93,12 @@ export class FormTimeSlot extends Component {
     );
   }
 }
+
+FormTimeSlot.propTypes = {
+  prevStep: PropTypes.func.isRequired,
+  nextStep: PropTypes.func.isRequired,
+  values: PropTypes.object.isRequired,
+  handleChange: PropTypes.func.isRequired
+};
 
 export default FormTimeSlot;
